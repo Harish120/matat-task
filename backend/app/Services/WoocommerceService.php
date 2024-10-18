@@ -33,7 +33,7 @@ class WoocommerceService
             $response = $this->client->get('orders', [
                 'query' => [
                     'after' => $fromDate,
-                    'per_page' => 100 // Adjust per_page based on expected order volume
+                    'per_page' => 10
                 ]
             ]);
 
