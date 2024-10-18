@@ -13,6 +13,24 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('number');
+            $table->string('order_key');
+            $table->enum('status', [
+                'pending',
+                'processing',
+                'on-hold',
+                'completed',
+                'cancelled',
+                'refunded',
+                'failed',
+                'trash'
+            ])->default('pending');
+            $table->dateTime('date_created');
+            $table->decimal('total', 10, 2);
+            $table->unsignedBigInteger('customer_id')->nullable();
+            $table->text('customer_note')->nullable();
+            $table->json('billing');
+            $table->json('shipping');
             $table->timestamps();
         });
     }

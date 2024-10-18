@@ -13,6 +13,32 @@ return new class extends Migration
     {
         Schema::create('line_items', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('order_id');
+            $table->string('name');
+            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('variation_id')
+                ->nullable();
+            $table->integer('quantity');
+            $table->string('tax_class')
+                ->nullable();
+            $table->decimal('subtotal', 10, 2);
+            $table->decimal('subtotal_tax', 10, 2)
+                ->nullable();
+            $table->decimal('total', 10, 2);
+            $table->decimal('total_tax', 10, 2)
+                ->nullable();
+            $table->json('taxes')
+                ->nullable();
+            $table->json('meta_data')
+                ->nullable();
+            $table->string('sku')
+                ->nullable();
+            $table->decimal('price', 10, 2)
+                ->nullable();
+            $table->foreign('order_id')
+                ->references('id')
+                ->on('orders')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }
