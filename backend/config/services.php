@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'woocommerce' => [
+        'api_url' => env('WOOCOMMERCE_API_URL', "https://interview-test.matat.io/wp-json/wc/v3/"),
+        'consumer_key' => env('WOOCOMMERCE_CONSUMER_KEY', 'ck_40d0806b16feb3bd67a4d8dbbff163c6dfcf061d'),
+        'consumer_secret' => env('WOOCOMMERCE_CONSUMER_SECRET', 'cs_9544e30809595750f8f1c6f3f9a6efcc38bfd06d'),
+    ],
+
 ];
