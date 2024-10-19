@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\SyncOrderJob;
 use App\Models\LineItems;
 use App\Models\Order;
 use App\Services\OrderService;
@@ -27,11 +28,13 @@ class SyncOrders extends Command
     protected $description = 'Sync orders from Woocommerce to the local database';
 
     protected $woocommerceService;
+    protected $orderService;
 
-    public function __construct(WoocommerceService $woocommerceService)
+    public function __construct(WoocommerceService $woocommerceService, $orderService)
     {
         parent::__construct();
         $this->woocommerceService = $woocommerceService;
+        $this->orderService = $orderService;
     }
 
     /**
@@ -42,7 +45,7 @@ class SyncOrders extends Command
         $fromDate = Carbon::now()->subDays(30)->toIso8601String();
         $orders = $this->woocommerceService->fetchOrders($fromDate);
         if ($orders) {
-            SyncOrders::dispatch($orders);
+            SyncOrderJob::dispatch($orders, $this->orderService);
             $this->info('Orders sync initiated successfully!');
             $this->info('Orders synced successfully!');
         } else {

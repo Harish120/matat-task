@@ -19,7 +19,7 @@ class SyncOrderJob implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
+     * @param OrderService $orderService
      * @param array $orders
      */
     public function __construct(array $orders, OrderService $orderService)
@@ -31,7 +31,6 @@ class SyncOrderJob implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param OrderService $orderService
      */
     public function handle(): void
     {
