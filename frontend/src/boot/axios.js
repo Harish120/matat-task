@@ -17,10 +17,6 @@ let headers = {
   "Content-Type": "application/json",
 }
 
-if (process.env.X_TENANT) {
-  headers['X-Tenant'] = process.env.X_TENANT
-}
-
 const axiosInstance = axios.create({
   paramsSerializer: (params) => {
     return qs.stringify(params, {arrayFormat: "repeat"});

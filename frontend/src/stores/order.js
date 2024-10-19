@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axiosInstance from 'boot/axios';
+import {axiosInstance} from "boot/axios";
 
 export const useOrderStore = defineStore('order', {
   state: () => ({
