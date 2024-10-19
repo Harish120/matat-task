@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\LineItems;
 use App\Models\Order;
+use App\Services\OrderService;
 use App\Services\WoocommerceService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -26,11 +27,13 @@ class SyncOrders extends Command
     protected $description = 'Sync orders from Woocommerce to the local database';
 
     protected $woocommerceService;
+    protected $orderService;
 
-    public function __construct(WoocommerceService $woocommerceService)
+    public function __construct(WoocommerceService $woocommerceService, OrderService $orderService)
     {
         parent::__construct();
         $this->woocommerceService = $woocommerceService;
+        $this->orderService = $orderService;
     }
 
     /**
@@ -43,8 +46,8 @@ class SyncOrders extends Command
         if ($orders) {
             foreach ($orders as $orderData) {
                 try {
-                    $this->syncOrder($orderData);
-                    $this->syncLineItems($orderData['line_items'], $orderData['id']);
+                    $this->orderService->syncOrder($orderData);
+                    $this->orderService->syncLineItems($orderData['line_items'], $orderData['id']);
                 } catch (\Exception $e) {
                     Log::error('Order Sync Failed: ' . $e->getMessage());
                     $this->error('Order Sync Failed for order ID: ' . $orderData['id']);
@@ -57,60 +60,6 @@ class SyncOrders extends Command
 
         // Call the method to delete old orders
         $this->deleteOldOrders();
-    }
-
-    /**
-     * Sync individual order
-     * @param array $orderData
-     * @return void
-     */
-    private function syncOrder(array $orderData): void
-    {
-        Order::updateOrCreate(
-            ['id' => $orderData['id']],
-            [
-                'number' => $orderData['number'],
-                'order_key' => $orderData['order_key'],
-                'status' => $orderData['status'],
-                'date_created' => $orderData['date_created'],
-                'total' => $orderData['total'],
-                'customer_id' => $orderData['customer_id'],
-                'customer_note' => $orderData['customer_note'],
-                'billing' => json_encode($orderData['billing']),
-                'shipping' => json_encode($orderData['shipping']),
-            ]
-        );
-    }
-
-    /**
-     * Sync line items of the order
-     * @param array $lineItems
-     * @param int $orderId
-     * @return void
-     */
-    private function syncLineItems(array $lineItems, int $orderId): void
-    {
-        foreach ($lineItems as $lineItemData) {
-            LineItems::updateOrCreate(
-                ['id' => $lineItemData['id']],
-                [
-                    'order_id' => $orderId,
-                    'name' => $lineItemData['name'],
-                    'product_id' => $lineItemData['product_id'],
-                    'variation_id' => $lineItemData['variation_id'],
-                    'quantity' => $lineItemData['quantity'],
-                    'tax_class' => $lineItemData['tax_class'],
-                    'subtotal' => $lineItemData['subtotal'],
-                    'subtotal_tax' => $lineItemData['subtotal_tax'],
-                    'total' => $lineItemData['total'],
-                    'total_tax' => $lineItemData['total_tax'],
-                    'taxes' => json_encode($lineItemData['taxes']),
-                    'meta_data' => json_encode($lineItemData['meta_data']),
-                    'sku' => $lineItemData['sku'],
-                    'price' => $lineItemData['price'],
-                ]
-            );
-        }
     }
 
     /**

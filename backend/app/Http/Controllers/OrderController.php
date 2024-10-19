@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Console\Commands\SyncOrders;
+use App\Jobs\SyncOrderJob;
 use App\Models\Order;
+use App\Services\OrderService;
 use App\Services\WoocommerceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -11,10 +13,12 @@ use Illuminate\Support\Facades\Log;
 class OrderController extends Controller
 {
     protected $woocommerceService;
+    protected $orderService;
 
-    public function __construct(WoocommerceService $woocommerceService)
+    public function __construct(WoocommerceService $woocommerceService, OrderService $orderService)
     {
         $this->woocommerceService = $woocommerceService;
+        $this->orderService = $orderService;
     }
 
     /**
@@ -22,23 +26,13 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::query();
-
-        // Apply filters, search, and sorting if provided
-        if ($request->has('status')) {
-            $query->where('status', $request->input('status'));
+        try {
+            $orders = $this->orderService->getOrdersWithFilters($request);
+            return response()->json($orders);
+        } catch (\Exception $e) {
+            Log::error('Order Fetch Failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch orders'], 500);
         }
-        if ($request->has('customer_id')) {
-            $query->where('customer_id', $request->input('customer_id'));
-        }
-        if ($request->has('sort')) {
-            $query->orderBy($request->input('sort'), $request->input('direction', 'asc'));
-        }
-
-        // Paginate the result
-        $orders = $query->paginate(10);
-
-        return response()->json($orders);
     }
 
     /**
@@ -51,11 +45,11 @@ class OrderController extends Controller
             $orders = $this->woocommerceService->fetchOrders($fromDate);
 
             foreach ($orders as $orderData) {
-                // Reuse the sync logic from SyncOrders command
-                (new SyncOrders($this->woocommerceService))->syncOrder($orderData);
+                // Dispatch a job for each order sync
+                SyncOrderJob::dispatch($orderData);
             }
 
-            return response()->json(['message' => 'Orders synced successfully!']);
+            return response()->json(['message' => 'Orders sync initiated successfully!']);
         } catch (\Exception $e) {
             Log::error('Order Sync Failed: ' . $e->getMessage());
             return response()->json(['error' => 'Order Sync Failed'], 500);
