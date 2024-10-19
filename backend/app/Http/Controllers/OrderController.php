@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Console\Commands\SyncOrders;
+use App\Http\Resources\OrderResource;
 use App\Jobs\SyncOrderJob;
 use App\Models\Order;
 use App\Services\OrderService;
@@ -28,7 +29,9 @@ class OrderController extends Controller
     {
         try {
             $orders = $this->orderService->getOrdersWithFilters($request);
-            return response()->json($orders);
+            return OrderResource::collection($orders)
+                ->response()
+                ->setStatusCode(200);
         } catch (\Exception $e) {
             Log::error('Order Fetch Failed: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to fetch orders'], 500);
