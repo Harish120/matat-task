@@ -54,6 +54,9 @@ class SyncOrders extends Command
         } else {
             $this->error('Failed to fetch orders from Woocommerce.');
         }
+
+        // Call the method to delete old orders
+        $this->deleteOldOrders();
     }
 
     /**
@@ -61,7 +64,7 @@ class SyncOrders extends Command
      * @param array $orderData
      * @return void
      */
-    private function syncOrder(array $orderData)
+    private function syncOrder(array $orderData): void
     {
         Order::updateOrCreate(
             ['id' => $orderData['id']],
@@ -85,7 +88,7 @@ class SyncOrders extends Command
      * @param int $orderId
      * @return void
      */
-    private function syncLineItems(array $lineItems, int $orderId)
+    private function syncLineItems(array $lineItems, int $orderId): void
     {
         foreach ($lineItems as $lineItemData) {
             LineItems::updateOrCreate(
@@ -108,5 +111,17 @@ class SyncOrders extends Command
                 ]
             );
         }
+    }
+
+    /**
+     * Delete orders not modified in the last 3 months.
+     */
+    private function deleteOldOrders(): void
+    {
+        $cutoffDate = Carbon::now()->subMonths(3);
+
+        $deletedCount = Order::where('updated_at', '<', $cutoffDate)->delete();
+
+        $this->info("Deleted $deletedCount old orders that haven't been modified in the last 3 months.");
     }
 }
