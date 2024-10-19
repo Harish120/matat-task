@@ -1,15 +1,55 @@
 <template>
-  <q-page class="flex flex-center">
-    <img
-      alt="Quasar logo"
-      src="~assets/quasar-logo-vertical.svg"
-      style="width: 200px; height: 200px"
+  <div>
+    <q-spinner v-if="loading" />
+
+    <q-table
+      v-if="!loading && orders.length"
+      :rows="orders"
+      :columns="columns"
+      row-key="id"
+      :pagination="pagination"
+      @request="onRequest"
     >
-  </q-page>
+      <template v-slot:top-right>
+        <q-input v-model="filter" debounce="300" placeholder="Search..." />
+      </template>
+    </q-table>
+
+    <q-banner v-if="!orders.length && !loading">No orders found.</q-banner>
+  </div>
 </template>
 
 <script setup>
-defineOptions({
-  name: 'IndexPage'
+import { ref, computed, onMounted } from 'vue';
+import { useOrderStore } from 'src/stores/order';
+
+const orderStore = useOrderStore();
+
+const loading = computed(() => orderStore.loading);
+const orders = computed(() => orderStore.orders);
+const filter = ref('');
+
+const columns = [
+  { name: 'number', label: 'Order Number', align: 'left', field: 'number' },
+  { name: 'total', label: 'Total', align: 'right', field: 'total' },
+  { name: 'date_created', label: 'Date Created', align: 'left', field: 'date_created' },
+];
+
+const pagination = ref({ page: 1, rowsPerPage: 10 });
+
+const onRequest = ({ pagination, filter }) => {
+  orderStore.fetchOrders({
+    page: pagination.page,
+    per_page: pagination.rowsPerPage,
+    filter: filter,
+  });
+};
+
+onMounted(() => {
+  orderStore.fetchOrders();
 });
 </script>
+
+<style scoped>
+/* Add custom styles here if needed */
+</style>
