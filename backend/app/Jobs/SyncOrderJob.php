@@ -15,15 +15,17 @@ class SyncOrderJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $orders;
+    protected $orderService;
 
     /**
      * Create a new job instance.
      *
-     * @param array $orderData
+     * @param array $orders
      */
-    public function __construct(array $orders)
+    public function __construct(array $orders, OrderService $orderService)
     {
         $this->orders = $orders;
+        $this->orderService = $orderService;
     }
 
     /**
@@ -31,13 +33,13 @@ class SyncOrderJob implements ShouldQueue
      *
      * @param OrderService $orderService
      */
-    public function handle(OrderService $orderService): void
+    public function handle(): void
     {
         // Call sync logic from the OrderService
         foreach ($this->orders as $orderData) {
             try {
-                $orderService->syncOrder($orderData);
-                $orderService->syncLineItems($orderData['line_items'], $orderData['id']);
+                $this->orderService->syncOrder($orderData);
+                $this->orderService->syncLineItems($orderData['line_items'], $orderData['id']);
             } catch (\Exception $e) {
                 Log::error('Order Sync Failed: ' . $e->getMessage());
             }

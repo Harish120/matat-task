@@ -27,13 +27,11 @@ class SyncOrders extends Command
     protected $description = 'Sync orders from Woocommerce to the local database';
 
     protected $woocommerceService;
-    protected $orderService;
 
-    public function __construct(WoocommerceService $woocommerceService, OrderService $orderService)
+    public function __construct(WoocommerceService $woocommerceService)
     {
         parent::__construct();
         $this->woocommerceService = $woocommerceService;
-        $this->orderService = $orderService;
     }
 
     /**
@@ -44,15 +42,8 @@ class SyncOrders extends Command
         $fromDate = Carbon::now()->subDays(30)->toIso8601String();
         $orders = $this->woocommerceService->fetchOrders($fromDate);
         if ($orders) {
-            foreach ($orders as $orderData) {
-                try {
-                    $this->orderService->syncOrder($orderData);
-                    $this->orderService->syncLineItems($orderData['line_items'], $orderData['id']);
-                } catch (\Exception $e) {
-                    Log::error('Order Sync Failed: ' . $e->getMessage());
-                    $this->error('Order Sync Failed for order ID: ' . $orderData['id']);
-                }
-            }
+            SyncOrders::dispatch($orders);
+            $this->info('Orders sync initiated successfully!');
             $this->info('Orders synced successfully!');
         } else {
             $this->error('Failed to fetch orders from Woocommerce.');

@@ -44,10 +44,7 @@ class OrderController extends Controller
             $fromDate = now()->subDays(30)->toIso8601String();
             $orders = $this->woocommerceService->fetchOrders($fromDate);
 
-            foreach ($orders as $orderData) {
-                // Dispatch a job for each order sync
-                SyncOrderJob::dispatch($orderData);
-            }
+            SyncOrders::dispatch($orders);
 
             return response()->json(['message' => 'Orders sync initiated successfully!']);
         } catch (\Exception $e) {
