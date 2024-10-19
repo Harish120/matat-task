@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Console\Commands\SyncOrders;
+use App\Models\Order;
 use App\Services\WoocommerceService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -49,7 +52,7 @@ class OrderController extends Controller
 
             foreach ($orders as $orderData) {
                 // Reuse the sync logic from SyncOrders command
-                (new \App\Console\Commands\SyncOrders($this->woocommerceService))->syncOrder($orderData);
+                (new SyncOrders($this->woocommerceService))->syncOrder($orderData);
             }
 
             return response()->json(['message' => 'Orders synced successfully!']);
