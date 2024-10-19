@@ -1,6 +1,8 @@
 import { route } from 'quasar/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from './routes'
+import {authGuard} from "src/router/guards/authGuard";
+import {useAuthStore} from "stores/auth";
 
 /*
  * If not building with SSR mode, you can
@@ -25,6 +27,19 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE)
   })
+
+
+// Global navigation guard to check authentication
+  Router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore();
+
+    // Check if the route requires authentication
+    if (to.matched.some(record => record.beforeEnter === authGuard && !authStore.isAuthenticated)) {
+      next('/login'); // Redirect to login if not authenticated
+    } else {
+      next(); // Proceed to the route if authenticated or not protected
+    }
+  });
 
   return Router
 })

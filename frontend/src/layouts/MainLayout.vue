@@ -12,11 +12,10 @@
 
     <!-- Sidebar (optional) -->
     <q-drawer show-if-above v-model="drawer" bordered>
-      <q-list>
+      <q-list class="q-mt-md">
         <q-item to="/" exact>
-          <q-item-section>Home</q-item-section>
+          <q-item-label class="q-mt-sm"><q-icon name="home" />&nbsp;Home</q-item-label>
         </q-item>
-        <!-- Add more navigation items here -->
       </q-list>
     </q-drawer>
 

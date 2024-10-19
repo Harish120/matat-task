@@ -11,7 +11,7 @@ export const useOrderStore = defineStore('order', {
       this.loading = true;
       try {
         const response = await axiosInstance.get('/orders', { params });
-        this.orders = response.data.data; // Adjust based on your API response structure
+        this.orders = response.data.data;
       } catch (error) {
         console.error('Error fetching orders:', error);
       } finally {

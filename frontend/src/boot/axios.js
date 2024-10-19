@@ -10,7 +10,7 @@ import _ from "lodash";
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const token = LocalStorage.getItem("access_token");
+const token = LocalStorage.getItem("token");
 // console.log(token)
 let headers = {
   "X-Requested-With": "XMLHttpRequest",
@@ -59,13 +59,13 @@ export default boot(({app, store}) => {
           timeout: 2000,
           color: "negative",
         });
-        setTimeout(() => {
-          LocalStorage.remove('access_token')
-          LocalStorage.remove('current_tenant')
-          LocalStorage.remove('refresh_token')
-          window.location.reload(false);
-          store.commit("auth/setUser", null);
-        }, 2000)
+        // setTimeout(() => {
+        //   LocalStorage.remove('access_token')
+        //   LocalStorage.remove('current_tenant')
+        //   LocalStorage.remove('refresh_token')
+        //   window.location.reload(false);
+        //   store.commit("auth/setUser", null);
+        // }, 2000)
       } else if (error.response && error.response.status === 400) {
         // oauth.logout()
         if (error.response.data.message) {
