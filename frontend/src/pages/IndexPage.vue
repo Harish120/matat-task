@@ -3,15 +3,23 @@
     <q-card flat>
       <q-card-section>
         <!-- Search bar -->
-        <q-input
-          v-model="filter"
-          debounce="300"
-          placeholder="Search orders..."
-          clearable
-          square
-          @input="fetchOrders"
-        />
-
+        <div class="row flex justify-end">
+          <q-input
+            v-model="filter"
+            debounce="300"
+            placeholder="Search orders..."
+            clearable
+            square
+            @input="fetchOrders"
+          />
+          <q-btn
+            flat
+            label="Manual Sync Orders"
+            size="sm"
+            icon="logout"
+            @click="syncOrders"
+          />
+        </div>
         <!-- Table with pagination -->
         <q-table
           class="q-mt-md"
@@ -30,25 +38,26 @@
 <script setup>
 import {ref, computed, onMounted, watch} from 'vue';
 import {useOrderStore} from 'src/stores/order';
+import {Notify} from "quasar";
 
-// Initialize store
+
 const orderStore = useOrderStore();
 
-// Local states
+
 const filter = ref('');
 
-// Computed properties from store
+
 const loading = computed(() => orderStore.loading);
 const orders = computed(() => orderStore.orders);
-const meta = computed(() => orderStore.meta); // Meta for pagination
+const meta = computed(() => orderStore.meta);
 
-// Pagination object for q-table
+
 const pagination = ref({
-  page: 1,         // Default page
-  rowsPerPage: 10, // Default rows per page
+  page: 1,
+  rowsPerPage: 10,
 });
 
-// Table columns definition
+
 const columns = [
   { name: 'number', label: 'Order Number', align: 'left', field: 'number', sortable: true },
   { name: 'status', label: 'Order Status', align: 'left', field: 'status', sortable: true },
@@ -58,26 +67,37 @@ const columns = [
   { name: 'customer_note', label: 'Customer Note', align: 'left', field: 'customer_note', sortable: false },
 ];
 
-// Fetch orders function
-const fetchOrders = () => {
-  orderStore.fetchOrders({
-    page: pagination.value.page,        // Current page
-    per_page: pagination.value.rowsPerPage, // Rows per page
-    query: filter.value,                // Pass the filter
+const syncOrders = async () => {
+  loading.value = true;
+  await orderStore.syncOrders().then(function() {
+    Notify.create({
+      message: 'Manual Syncing of order completed! Make sure job is running.',
+      timeout:3000,
+      color: "green-7"
+    });
+    loading.value = false;
   });
 };
 
-// Watch for pagination changes to fetch new data
+const fetchOrders = () => {
+  orderStore.fetchOrders({
+    page: pagination.value.page,
+    per_page: pagination.value.rowsPerPage,
+    query: filter.value,
+  });
+};
+
+
 watch(pagination, (newPagination) => {
-  fetchOrders(); // Fetch orders whenever pagination changes
+  fetchOrders();
 });
 
 watch(filter, () => {
-  pagination.value.page = 1; // Reset to the first page when filter changes
-  fetchOrders(); // Fetch orders whenever the filter changes
+  pagination.value.page = 1;
+  fetchOrders();
 });
 
-// Initial fetch on component mount
+
 onMounted(() => {
   fetchOrders();
 });

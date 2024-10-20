@@ -43,16 +43,23 @@ export const useAuthStore = defineStore('auth', {
         const response = await axiosInstance.get('/user');
         this.$state.user = response.data;
       } catch (error) {
-        this.logout(); // If token is invalid or expired, log out
+        await this.logout(); // If token is invalid or expired, log out
       }
     },
 
-    logout() {
-      this.token = null;
-      this.user = null;
+    async logout() {
 
-      localStorage.removeItem('token');
-      delete axiosInstance.defaults.headers.common['Authorization'];
+      try {
+        const response = await axiosInstance.post('/user/logout');
+
+        this.token = null;
+        this.user = null;
+
+        localStorage.removeItem('token');
+        delete axiosInstance.defaults.headers.common['Authorization'];
+      } catch (error) {
+        console.log(error)
+      }
     },
   },
 });
