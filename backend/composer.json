@@ -55,9 +55,6 @@
     },
     "extra": {
         "laravel": {
-            "providers": [
-                "App\\Providers\\ScheduleServiceProvider"
-            ],
             "dont-discover": []
         }
     },
