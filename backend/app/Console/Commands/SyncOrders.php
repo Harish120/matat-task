@@ -42,7 +42,7 @@ class SyncOrders extends Command
      */
     public function handle()
     {
-        $fromDate = Carbon::now()->subDays(400)->toIso8601String();
+        $fromDate = Carbon::now()->subDays(30)->toIso8601String();
         $orders = $this->woocommerceService->fetchOrders($fromDate);
         if ($orders) {
             SyncOrderJob::dispatch($orders, $this->orderService);
