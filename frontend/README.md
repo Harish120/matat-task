@@ -1,41 +1,86 @@
-# Matat frontend project (frontend)
+# Order Management System Frontend
 
-A frontend project of Matat task
+## Description
 
-## Install the dependencies
-```bash
-yarn
-# or
-npm install
-```
+This is the frontend for the Order Management System built using Vue 3 and Quasar v2. It provides a user-friendly interface to manage orders, allowing users to log in, view, search, and synchronize orders.
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
-```
+## Table of Contents
 
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Features](#features)
+- [API Integration](#api-integration)
+- [Contributing](#contributing)
+- [License](#license)
 
-### Lint the files
-```bash
-yarn lint
-# or
-npm run lint
-```
+## Requirements
 
+- Node.js >= 18
+- npm >= 6
+- Vue.js >= 3
+- Quasar Framework >= 2
+- Pinia
 
-### Format the files
-```bash
-yarn format
-# or
-npm run format
-```
+## Installation
 
+1. Clone the repository:
 
+   ```bash
+   git clone git@github.com:Harish120/matat-task.git
+   cd matat-task/frontend
+   ```
 
-### Build the app for production
-```bash
-quasar build
-```
+2. Install the dependencies:
 
-### Customize the configuration
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+   ```bash
+   npm install
+   ```
+
+3. Set up your environment file:
+
+   Create a `.env.dev` file in the root directory and add the API base URL:
+
+   ```
+   VUE_APP_API_URL=http://127.0.0.1:8000/api
+   ```
+
+4. Run the development server:
+
+   ```bash
+   npm run dev
+      or
+   quasar dev
+   ```
+
+5. Open your browser and navigate to `http://localhost:3000`.
+
+## Usage
+
+You can use the application to log in, view orders, and synchronize them with the backend API. Make sure the backend API is running and accessible.
+
+## Features
+
+- User authentication (login and logout)
+- View and search orders
+- Pagination for order listing
+- Synchronization of orders with the backend API
+
+## API Integration
+
+The frontend communicates with the backend API for authentication and order management. Ensure the backend is set up as described in its `README.md` file.
+
+### API Endpoints
+
+- **Login**: `POST /login`
+- **Register**: `POST /register`
+- **Get Orders**: `GET /orders`
+- **Sync Orders**: `POST /orders/sync`
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any changes you'd like to make.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
