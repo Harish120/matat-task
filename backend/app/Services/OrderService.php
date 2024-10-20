@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\LineItems;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -36,18 +37,23 @@ class OrderService
             $query->where(function ($q) use ($search) {
                 $q->where('number', 'like', '%' . $search . '%')
                     ->orWhere('customer_note', 'like', '%' . $search . '%')
-                    ->orWhere('total', 'like', '%' . $search . '%');
+                    ->orWhere('total', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', '%' . $search . '%');
             });
         }
 
         // Sorting logic
         $sortBy = $request->input('sort', 'date_created');
-        $direction = $request->input('direction', 'asc');
+        $direction = $request->input('direction', 'desc');
         $query->orderBy($sortBy, $direction);
 
         // Paginate the result, default 10 per page
-        $perPage = $request->input('per_page', 10);
-        return $query->paginate($perPage);
+        $perPage = $request->input('per_page');
+        if($perPage > 0) {
+            return $query->paginate($perPage);
+        } else {
+            return $query->get();
+        }
     }
 
     /**
