@@ -37,8 +37,8 @@ class SyncOrderJob implements ShouldQueue
         // Call sync logic from the OrderService
         foreach ($this->orders as $orderData) {
             try {
-                $this->orderService->syncOrder($orderData);
-                $this->orderService->syncLineItems($orderData['line_items'], $orderData['id']);
+                $order = $this->orderService->syncOrder($orderData);
+                $this->orderService->syncLineItems($orderData['line_items'], $order->id);
             } catch (\Exception $e) {
                 Log::error('Order Sync Failed: ' . $e->getMessage());
             }

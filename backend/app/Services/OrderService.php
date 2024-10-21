@@ -60,14 +60,13 @@ class OrderService
      * Sync an individual order.
      *
      * @param array $orderData
-     * @return void
+     * @return mixed
      */
-    public function syncOrder(array $orderData): void
+    public function syncOrder(array $orderData): mixed
     {
-        Order::updateOrCreate(
-            ['id' => $orderData['id']],
+        return Order::updateOrCreate(
+            ['number' => $orderData['number']],
             [
-                'number' => $orderData['number'],
                 'order_key' => $orderData['order_key'],
                 'status' => $orderData['status'],
                 'date_created' => $orderData['date_created'],
