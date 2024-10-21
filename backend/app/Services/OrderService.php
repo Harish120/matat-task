@@ -48,8 +48,8 @@ class OrderService
         $query->orderBy($sortBy, $direction);
 
         // Paginate the result, default 10 per page
-        $perPage = $request->input('per_page');
-        if($perPage > 0) {
+        $perPage = $request->input('per_page', 10);
+        if($perPage && $perPage > 0) {
             return $query->paginate($perPage);
         } else {
             return $query->get();
