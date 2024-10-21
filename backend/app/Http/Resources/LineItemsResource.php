@@ -19,8 +19,6 @@ class LineItemsResource extends JsonResource
             'name' => $this->name,
             'quantity' => $this->quantity,
             'sku' => $this->sku,
-            'order_key' => $this->order_key,
-            'order_number' => $this->order_number
         ];
     }
 }

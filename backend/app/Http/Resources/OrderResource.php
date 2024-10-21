@@ -23,6 +23,7 @@ class OrderResource extends JsonResource
             'customer_note' => $this->customer_note ?? 'N/A',
             'billing' => $this->billing,
             'shipping' => $this->shipping,
+            'line_items' => LineItemsResource::collection($this->lineItems),
             'line_items_count' => $this->lineItems->count()
         ];
     }
