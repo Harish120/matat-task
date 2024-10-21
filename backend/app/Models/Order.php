@@ -20,6 +20,11 @@ class Order extends Model
         'shipping'
     ];
 
+    protected $casts = [
+        'billing' => 'array',
+        'shipping' => 'array',
+    ];
+
     public function lineItems(): HasMany
     {
         return $this->hasMany(LineItems::class);
