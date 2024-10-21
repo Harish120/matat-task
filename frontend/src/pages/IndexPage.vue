@@ -38,17 +38,19 @@
             @click="syncOrders"
           />
         </div>
-{{orders[0]}}
-        <template v-if="orders.length > 0">
+<!--:sort-method="handleRequest"-->
+        <template v-if="orderList.length > 0">
           <q-table
+            flat bordered
             class="q-mt-md"
-            :rows="orders"
+            ref="tableRef"
+            :rows="orderList"
             :columns="columns"
-            row-key="id"
+            row-key="number"
             :loading="loading"
             v-model:pagination="pagination"
             binary-state-sort
-            :sort-method="handleRequest"
+            @request="onRequest"
           >
             <template v-slot:body-cell-line_items="props">
               <q-expansion-item icon="list" label="View Items">
@@ -57,45 +59,6 @@
                 </div>
               </q-expansion-item>
             </template>
-<!--          <template v-slot:pagination v-if="meta">-->
-<!--            <q-btn-->
-<!--              icon="first_page"-->
-<!--              color="grey-8"-->
-<!--              round-->
-<!--              dense-->
-<!--              flat-->
-<!--              :disable="pagination.page === 1"-->
-<!--              @click="goToPage(1)"-->
-<!--            />-->
-<!--            <q-btn-->
-<!--              icon="chevron_left"-->
-<!--              color="grey-8"-->
-<!--              round-->
-<!--              dense-->
-<!--              flat-->
-<!--              :disable="pagination.page === 1"-->
-<!--              @click="goToPage(pagination.page - 1)"-->
-<!--            />-->
-<!--            <span class="q-mx-md">{{ pagination.page }} / {{ meta.last_page }}</span>-->
-<!--            <q-btn-->
-<!--              icon="chevron_right"-->
-<!--              color="grey-8"-->
-<!--              round-->
-<!--              dense-->
-<!--              flat-->
-<!--              :disable="pagination.page === meta.last_page"-->
-<!--              @click="goToPage(pagination.page + 1)"-->
-<!--            />-->
-<!--            <q-btn-->
-<!--              icon="last_page"-->
-<!--              color="grey-8"-->
-<!--              round-->
-<!--              dense-->
-<!--              flat-->
-<!--              :disable="pagination.page === meta.last_page"-->
-<!--              @click="goToPage(meta.last_page)"-->
-<!--            />-->
-<!--          </template>-->
           </q-table>
         </template>
         <template v-else>
@@ -112,6 +75,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useOrderStore } from 'src/stores/order';
 import { Notify } from 'quasar';
+import {axiosInstance} from "boot/axios";
 
 // Order store and refs
 const orderStore = useOrderStore();
@@ -120,13 +84,15 @@ const query = ref('');
 const filter = ref({});
 
 const loading = computed(() => orderStore.loading);
-const orders = computed(() => orderStore.orders);
-const meta = computed(() => orderStore.meta);
-const sort = ref({ column: 'date_created', direction: 'desc' }); // Default sorting
+const orderList = ref([]);
+const meta = ref([]);
 const pagination = ref({
+  sortBy: 'date_created',
+  descending: true,
   page: 1,
   rowsPerPage: 10,
-});
+  rowsNumber: 10
+})
 const orderStatusOptions = ref(["completed", "processing", "pending", "refunded"])
 
 // Columns for the table
@@ -153,34 +119,39 @@ const fetchOrders = async (page = pagination.value.page, perPage = pagination.va
     per_page: perPage,
     query: query.value,
     filter: JSON.stringify(filtersParam),
-    sort: sort.value.column,       // Add sort field
-    direction: sort.value.direction, // Add sort direction
+    sort: pagination.value.sortBy,       // Add sort field
+    direction: pagination.value.descending ? 'desc' : 'asc', // Add sort direction
   }
-  await orderStore.fetchOrders(params);
+  const result = await orderStore.fetchOrders(params);
+  orderList.value = result.data
+  meta.value = result.meta
+
+  pagination.value.page = result.meta.current_page
+  pagination.value.rowsPerPage = result.meta.per_page
+  pagination.value.rowsNumber = result.meta.total
 };
 
-// Navigate to a specific page
-const goToPage = async (page) => {
-  if (page >= 1 && page <= meta.value.last_page) {
-    pagination.value.page = page; // Update current page
-    await fetchOrders(page, pagination.value.rowsPerPage);
+const onRequest = (props) => {
+  const { page, rowsPerPage, sortBy, descending } = props.pagination
+  pagination.value.sortBy = sortBy;
+  pagination.value.descending = descending;
 
-  }
-};
-
-const handleRequest = (rows, sortBy, descending) => {
-  const newDirection = descending ? 'desc' : 'asc';
-
-  // Check if sorting has changed
-  if (sort.value.column !== sortBy || sort.value.direction !== newDirection) {
-    sort.value.column = sortBy;
-    sort.value.direction = newDirection;
-    fetchOrders(1, pagination.value.rowsPerPage); // Fetch orders with new sorting
-  }
-};
+  // emulate server
+  setTimeout(async () => {
+    const fetchCount = rowsPerPage === 0 ? pagination.value.rowsNumber : rowsPerPage
+    // fetch data from "server"
+    await fetchOrders(page, fetchCount)
+  }, 100)
+}
 
 const syncOrders = async () => {
-  await orderStore.syncOrders();
+  await orderStore.syncOrders().then(function() {
+    Notify.create({
+      message: "Manual syncing of orders done. Please run job on backend!",
+      color: "green-7",
+      timeout: 600
+    })
+  })
 };
 
 // Watch for query changes and reset to page 1
