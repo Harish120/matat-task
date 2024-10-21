@@ -140,6 +140,16 @@ You can use tools like Postman or curl to interact with the API. Make sure to in
     - **Headers**:
         - `Authorization: Bearer {access_token}`
 
+### Automatic Sync Order
+Run the scheduled command for the automatic fetching of orders daily at 12:00.
+```bash
+   php artisan schedule:run
+   ```
+After running above command, you need to run job queue as well since the fetched orders has been updating to local database via job.
+```bash
+   php artisan queue:work
+   ```
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any changes you'd like to make.
