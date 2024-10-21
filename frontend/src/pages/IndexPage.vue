@@ -52,6 +52,14 @@
             binary-state-sort
             @request="onRequest"
           >
+            <template v-slot:body-cell-serial_number="props">
+                <q-td>
+                  {{ orderList.indexOf(props.row) +
+                      1 +
+                        pagination.rowsPerPage * (pagination.page - 1)
+                    }}
+                </q-td>
+            </template>
             <template v-slot:body-cell-line_items="props">
               <q-expansion-item icon="list" label="View Items">
                 <div v-for="item in props.row.line_items" :key="item.id">
@@ -97,6 +105,7 @@ const orderStatusOptions = ref(["completed", "processing", "pending", "refunded"
 
 // Columns for the table
 const columns = [
+  { name: 'serial_number', label: 'S.N.', align: 'left', field: 'serial_number', sortable: false },
   { name: 'number', label: 'Order Number', align: 'left', field: 'number', sortable: true },
   { name: 'status', label: 'Order Status', align: 'left', field: 'status', sortable: false },
   { name: 'total', label: 'Total', align: 'right', field: 'total', sortable: true },
