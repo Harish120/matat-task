@@ -34,27 +34,32 @@ class OrderService
         // Search functionality
         if ($request->has('query')) {
             $search = $request->input('query');
+
             $query->where(function ($q) use ($search) {
                 $q->where('number', 'like', '%' . $search . '%')
                     ->orWhere('customer_note', 'like', '%' . $search . '%')
                     ->orWhere('total', 'like', '%' . $search . '%')
-                    //billing address search
-                    ->orWhere('billing->first_name', 'like', '%' . $search . '%')
+
+                    // Search in billing fields (JSON) with LIKE for partial matches
+                    ->orWhere('billing', 'like', '%' . $search . '%')
                     ->orWhere('billing->last_name', 'like', '%' . $search . '%')
                     ->orWhere('billing->email', 'like', '%' . $search . '%')
                     ->orWhere('billing->phone', 'like', '%' . $search . '%')
                     ->orWhere('billing->city', 'like', '%' . $search . '%')
+                    ->orWhere('billing->state', 'like', '%' . $search . '%')
                     ->orWhere('billing->postcode', 'like', '%' . $search . '%')
                     ->orWhere('billing->address_1', 'like', '%' . $search . '%')
                     ->orWhere('billing->address_2', 'like', '%' . $search . '%')
-                    // Search in shipping fields (JSON)
+
+                    // Search in shipping fields (JSON) with LIKE for partial matches
                     ->orWhere('shipping->first_name', 'like', '%' . $search . '%')
                     ->orWhere('shipping->last_name', 'like', '%' . $search . '%')
+                    ->orWhere('shipping->state', 'like', '%' . $search . '%')
                     ->orWhere('shipping->city', 'like', '%' . $search . '%')
                     ->orWhere('shipping->postcode', 'like', '%' . $search . '%')
                     ->orWhere('shipping->address_1', 'like', '%' . $search . '%')
                     ->orWhere('shipping->address_2', 'like', '%' . $search . '%');
-                    });
+                });
         }
 
         // Sorting logic
