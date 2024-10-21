@@ -3,11 +3,30 @@
     <q-card flat>
       <q-card-section>
         <div class="row flex justify-end">
+          <q-select
+            v-model="orderStatus"
+            :options="orderStatusOptions"
+            bordered
+            clearable
+            dense
+            emit-value
+            map-options
+            class="q-pr-sm"
+            outlined
+            square
+            label="Filter Status"
+            style="width: 250px;"
+            @update:model-value="fetchOrders(1, pagination.rowsPerPage)"
+          >
+          </q-select>
           <q-input
-            v-model="filter"
+            v-model="query"
             debounce="300"
             placeholder="Search orders..."
             clearable
+            bordered
+            dense
+            outlined
             square
             @input="fetchOrders(1, pagination.rowsPerPage)"
           />
@@ -94,7 +113,9 @@ import { Notify } from 'quasar';
 
 // Order store and refs
 const orderStore = useOrderStore();
-const filter = ref('');
+const orderStatus = ref(null);
+const query = ref('');
+const filter = ref({});
 
 const loading = computed(() => orderStore.loading);
 const orders = computed(() => orderStore.orders);
@@ -103,6 +124,7 @@ const pagination = ref({
   page: 1,
   rowsPerPage: 10,
 });
+const orderStatusOptions = ref(["completed", "processing", "pending", "refunded"])
 
 // Columns for the table
 const columns = [
@@ -113,15 +135,23 @@ const columns = [
   { name: 'line_items', label: 'Line Items', align: 'left', field: 'line_items', sortable: false },
   { name: 'line_items_count', label: 'Total Items', align: 'left', field: 'line_items_count', sortable: true },
   { name: 'customer_note', label: 'Customer Note', align: 'left', field: 'customer_note', sortable: false },
+  { name: 'billing', label: 'Billing Address', align: 'left', field: 'billing', sortable: false },
+  { name: 'shipping', label: 'Shipping Address', align: 'left', field: 'shipping', sortable: false },
 ];
 
-// Fetch orders based on pagination and filter
+// Fetch orders based on pagination and query
 const fetchOrders = async (page = pagination.value.page, perPage = pagination.value.rowsPerPage) => {
-  await orderStore.fetchOrders({
+
+  const filtersParam = orderStatus.value ? ({
+    status: orderStatus.value
+  }): null;
+  const params = {
     page: page,
     per_page: perPage,
-    query: filter.value,
-  });
+    query: query.value,
+    filter: JSON.stringify(filtersParam)
+  }
+  await orderStore.fetchOrders(params);
 };
 
 // Navigate to a specific page
@@ -136,6 +166,12 @@ const goToPage = async (page) => {
 const syncOrders = async () => {
   await orderStore.syncOrders();
 };
+
+// Watch for query changes and reset to page 1
+watch(query, () => {
+  pagination.value.page = 1;
+  fetchOrders(1, pagination.value.rowsPerPage);
+});
 
 // Watch for filter changes and reset to page 1
 watch(filter, () => {
