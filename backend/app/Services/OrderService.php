@@ -17,7 +17,7 @@ class OrderService
      */
     public function getOrdersWithFilters(Request $request)
     {
-        $query = Order::query();
+        $query = Order::query()->with('lineItems');
 
         // Decode the stringifies filter object
         if ($request->has('filter')) {
