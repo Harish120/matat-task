@@ -29,6 +29,13 @@
             :loading="loading"
             v-model:pagination="pagination"
           >
+            <template v-slot:body-cell-line_items="props">
+              <q-expansion-item icon="list" label="View Items">
+                <div v-for="item in props.row.line_items" :key="item.id">
+                  {{ item.name }} - Quantity: {{ item.quantity }}
+                </div>
+              </q-expansion-item>
+            </template>
 <!--          <template v-slot:pagination v-if="meta">-->
 <!--            <q-btn-->
 <!--              icon="first_page"-->
@@ -103,6 +110,7 @@ const columns = [
   { name: 'status', label: 'Order Status', align: 'left', field: 'status', sortable: true },
   { name: 'total', label: 'Total', align: 'right', field: 'total', sortable: true },
   { name: 'date_created', label: 'Date Created', align: 'left', field: 'date_created', sortable: true },
+  { name: 'line_items', label: 'Line Items', align: 'left', field: 'line_items', sortable: false },
   { name: 'line_items_count', label: 'Total Items', align: 'left', field: 'line_items_count', sortable: true },
   { name: 'customer_note', label: 'Customer Note', align: 'left', field: 'customer_note', sortable: false },
 ];
