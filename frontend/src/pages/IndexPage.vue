@@ -29,45 +29,45 @@
             :loading="loading"
             v-model:pagination="pagination"
           >
-          <template v-slot:pagination v-if="meta">
-            <q-btn
-              icon="first_page"
-              color="grey-8"
-              round
-              dense
-              flat
-              :disable="pagination.page === 1"
-              @click="goToPage(1)"
-            />
-            <q-btn
-              icon="chevron_left"
-              color="grey-8"
-              round
-              dense
-              flat
-              :disable="pagination.page === 1"
-              @click="goToPage(pagination.page - 1)"
-            />
-            <span class="q-mx-md">{{ pagination.page }} / {{ meta.last_page }}</span>
-            <q-btn
-              icon="chevron_right"
-              color="grey-8"
-              round
-              dense
-              flat
-              :disable="pagination.page === meta.last_page"
-              @click="goToPage(pagination.page + 1)"
-            />
-            <q-btn
-              icon="last_page"
-              color="grey-8"
-              round
-              dense
-              flat
-              :disable="pagination.page === meta.last_page"
-              @click="goToPage(meta.last_page)"
-            />
-          </template>
+<!--          <template v-slot:pagination v-if="meta">-->
+<!--            <q-btn-->
+<!--              icon="first_page"-->
+<!--              color="grey-8"-->
+<!--              round-->
+<!--              dense-->
+<!--              flat-->
+<!--              :disable="pagination.page === 1"-->
+<!--              @click="goToPage(1)"-->
+<!--            />-->
+<!--            <q-btn-->
+<!--              icon="chevron_left"-->
+<!--              color="grey-8"-->
+<!--              round-->
+<!--              dense-->
+<!--              flat-->
+<!--              :disable="pagination.page === 1"-->
+<!--              @click="goToPage(pagination.page - 1)"-->
+<!--            />-->
+<!--            <span class="q-mx-md">{{ pagination.page }} / {{ meta.last_page }}</span>-->
+<!--            <q-btn-->
+<!--              icon="chevron_right"-->
+<!--              color="grey-8"-->
+<!--              round-->
+<!--              dense-->
+<!--              flat-->
+<!--              :disable="pagination.page === meta.last_page"-->
+<!--              @click="goToPage(pagination.page + 1)"-->
+<!--            />-->
+<!--            <q-btn-->
+<!--              icon="last_page"-->
+<!--              color="grey-8"-->
+<!--              round-->
+<!--              dense-->
+<!--              flat-->
+<!--              :disable="pagination.page === meta.last_page"-->
+<!--              @click="goToPage(meta.last_page)"-->
+<!--            />-->
+<!--          </template>-->
           </q-table>
         </template>
         <template v-else>
