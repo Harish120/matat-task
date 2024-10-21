@@ -42,15 +42,21 @@ class SyncOrders extends Command
      */
     public function handle()
     {
+        $page = 1;
         $fromDate = Carbon::now()->subDays(30)->toIso8601String();
-        $orders = $this->woocommerceService->fetchOrders($fromDate);
-        if ($orders) {
-            SyncOrderJob::dispatch($orders, $this->orderService);
-            $this->info('Orders sync initiated successfully!');
-            $this->info('Orders synced successfully!');
-        } else {
-            $this->error('Failed to fetch orders from Woocommerce.');
-        }
+        do {
+            $orders = $this->woocommerceService->fetchOrders($fromDate, $page);
+
+            if ($orders) {
+                SyncOrderJob::dispatch($orders, $this->orderService);
+                $this->info('Orders sync initiated successfully!');
+                $this->info('Orders synced successfully!');
+            } else {
+                $this->error('Failed to fetch orders from Woocommerce.');
+            }
+
+            $page++;
+        } while (count($orders) > 0);
 
         // Call the method to delete old orders
         $this->deleteOldOrders();

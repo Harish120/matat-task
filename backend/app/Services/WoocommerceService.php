@@ -27,13 +27,14 @@ class WoocommerceService
         ]);
     }
 
-    public function fetchOrders($fromDate)
+    public function fetchOrders($fromDate, $page = 1)
     {
         try {
             $response = $this->client->get('orders', [
                 'query' => [
                     'after' => $fromDate,
-                    'per_page' => 50
+                    'per_page' => 25,
+                    'page' => $page
                 ]
             ]);
 
