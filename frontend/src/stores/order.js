@@ -20,6 +20,7 @@ export const useOrderStore = defineStore('order', () => {
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
+      console.log(orders.value)
       loading.value = false;
     }
   };

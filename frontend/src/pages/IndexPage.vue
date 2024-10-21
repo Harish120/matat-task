@@ -38,7 +38,7 @@
             @click="syncOrders"
           />
         </div>
-
+{{orders[0]}}
         <template v-if="orders.length > 0">
           <q-table
             class="q-mt-md"
@@ -47,6 +47,8 @@
             row-key="id"
             :loading="loading"
             v-model:pagination="pagination"
+            binary-state-sort
+            :sort-method="handleRequest"
           >
             <template v-slot:body-cell-line_items="props">
               <q-expansion-item icon="list" label="View Items">
@@ -120,6 +122,7 @@ const filter = ref({});
 const loading = computed(() => orderStore.loading);
 const orders = computed(() => orderStore.orders);
 const meta = computed(() => orderStore.meta);
+const sort = ref({ column: 'date_created', direction: 'desc' }); // Default sorting
 const pagination = ref({
   page: 1,
   rowsPerPage: 10,
@@ -129,7 +132,7 @@ const orderStatusOptions = ref(["completed", "processing", "pending", "refunded"
 // Columns for the table
 const columns = [
   { name: 'number', label: 'Order Number', align: 'left', field: 'number', sortable: true },
-  { name: 'status', label: 'Order Status', align: 'left', field: 'status', sortable: true },
+  { name: 'status', label: 'Order Status', align: 'left', field: 'status', sortable: false },
   { name: 'total', label: 'Total', align: 'right', field: 'total', sortable: true },
   { name: 'date_created', label: 'Date Created', align: 'left', field: 'date_created', sortable: true },
   { name: 'line_items', label: 'Line Items', align: 'left', field: 'line_items', sortable: false },
@@ -149,7 +152,9 @@ const fetchOrders = async (page = pagination.value.page, perPage = pagination.va
     page: page,
     per_page: perPage,
     query: query.value,
-    filter: JSON.stringify(filtersParam)
+    filter: JSON.stringify(filtersParam),
+    sort: sort.value.column,       // Add sort field
+    direction: sort.value.direction, // Add sort direction
   }
   await orderStore.fetchOrders(params);
 };
@@ -160,6 +165,17 @@ const goToPage = async (page) => {
     pagination.value.page = page; // Update current page
     await fetchOrders(page, pagination.value.rowsPerPage);
 
+  }
+};
+
+const handleRequest = (rows, sortBy, descending) => {
+  const newDirection = descending ? 'desc' : 'asc';
+
+  // Check if sorting has changed
+  if (sort.value.column !== sortBy || sort.value.direction !== newDirection) {
+    sort.value.column = sortBy;
+    sort.value.direction = newDirection;
+    fetchOrders(1, pagination.value.rowsPerPage); // Fetch orders with new sorting
   }
 };
 
