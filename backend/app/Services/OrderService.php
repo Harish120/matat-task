@@ -24,7 +24,7 @@ class OrderService
             $filters = json_decode($request->input('filter'), true);
             if (is_array($filters)) {
                 foreach ($filters as $column => $value) {
-                    if (in_array($column, ['status', 'customer_id', 'total', 'date_created'])) {
+                    if (in_array($column, ['status'])) {
                         $query->where($column, $value);
                     }
                 }
@@ -38,8 +38,23 @@ class OrderService
                 $q->where('number', 'like', '%' . $search . '%')
                     ->orWhere('customer_note', 'like', '%' . $search . '%')
                     ->orWhere('total', 'like', '%' . $search . '%')
-                    ->orWhere('status', 'like', '%' . $search . '%');
-            });
+                    //billing address search
+                    ->orWhere('billing->first_name', 'like', '%' . $search . '%')
+                    ->orWhere('billing->last_name', 'like', '%' . $search . '%')
+                    ->orWhere('billing->email', 'like', '%' . $search . '%')
+                    ->orWhere('billing->phone', 'like', '%' . $search . '%')
+                    ->orWhere('billing->city', 'like', '%' . $search . '%')
+                    ->orWhere('billing->postcode', 'like', '%' . $search . '%')
+                    ->orWhere('billing->address_1', 'like', '%' . $search . '%')
+                    ->orWhere('billing->address_2', 'like', '%' . $search . '%')
+                    // Search in shipping fields (JSON)
+                    ->orWhere('shipping->first_name', 'like', '%' . $search . '%')
+                    ->orWhere('shipping->last_name', 'like', '%' . $search . '%')
+                    ->orWhere('shipping->city', 'like', '%' . $search . '%')
+                    ->orWhere('shipping->postcode', 'like', '%' . $search . '%')
+                    ->orWhere('shipping->address_1', 'like', '%' . $search . '%')
+                    ->orWhere('shipping->address_2', 'like', '%' . $search . '%');
+                    });
         }
 
         // Sorting logic
