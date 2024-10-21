@@ -1,33 +1,43 @@
 import { defineStore } from 'pinia';
 import { axiosInstance } from 'boot/axios';
+import { ref } from 'vue';
 
-export const useOrderStore = defineStore('order', {
-  state: () => ({
-    orders: [],
-    loading: false,
-    meta: {},
-  }),
-  actions: {
-    async fetchOrders(params = {}) {
-      this.loading = true;
-      try {
-        const response = await axiosInstance.get('/orders', { params });
-        this.orders = response.data.data;
-        this.meta = response.data.meta;
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-      } finally {
-        this.loading = false;
-      }
-    },
+export const useOrderStore = defineStore('order', () => {
 
-    async syncOrders() {
-      try {
-        await axiosInstance.post('/orders/sync');
-        await this.fetchOrders();
-      } catch (error) {
-        console.error('Error syncing orders:', error);
-      }
-    },
-  },
+  const orders = ref({});
+  const loading = ref(false);
+  const meta = ref({});
+
+
+  const fetchOrders = async (params = {}) => {
+    loading.value = true;
+    try {
+        await axiosInstance.get('/orders', { params })
+          .then(function(response) {
+            orders.value = response.data.data;
+            meta.value = response.data.meta;
+        })
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const syncOrders = async () => {
+    try {
+      await axiosInstance.post('/orders/sync');
+      await fetchOrders();
+    } catch (error) {
+      console.error('Error syncing orders:', error);
+    }
+  };
+
+  return {
+    orders,
+    loading,
+    meta,
+    fetchOrders,
+    syncOrders,
+  };
 });
